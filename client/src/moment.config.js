@@ -4,22 +4,22 @@ console.log(moment().format('Do MMMM YYYY, h:mm:ss a'));
 
 const quarterPeriods = [
     {
-        start: () => moment().year() + "0101",
+        start: (next=false) => (moment().year() + (next?1:0)) + "0101",
         end: () => moment().year() + "0331",
         name: "Premier trimestre",
     },
     {
-        start: () => moment().year() + "0401",
+        start: (next=false) => (moment().year() + (next?1:0)) + "0401",
         end: () => moment().year() + "0630",
         name: "Deuxième trimestre",
     },
     {
-        start: () => moment().year() + "0701",
+        start: (next=false) => (moment().year() + (next?1:0)) + "0701",
         end: () => moment().year() + "0930",
         name: "Troisième trimestre"
     },
     {
-        start: () => moment().year() + "1001",
+        start: (next=false) => (moment().year() + (next?1:0)) + "1001",
         end: () => moment().year() + "1231",
         name: "Quatrième trimestre",
     }
@@ -27,19 +27,22 @@ const quarterPeriods = [
 
 export function getCurrentQuarter() {
     const now = moment();
+    let index = 0;
     for (const quarter of quarterPeriods) {
         if (
             now.isAfter(moment(quarter.start()))
             && now.isBefore(moment(quarter.end()))
-        ) return quarter;
+        ) return {quarter, index};
+        index++;
     }
 }
 
 export function getNextDeclaration() {
-    const quarter = getCurrentQuarter()
-    const nextDeclaration = moment(quarter.start());
+    const {quarter, index} = getCurrentQuarter()
+    const nextIndex = (index + 1) % 4;
+    const nextDeclaration = moment(quarterPeriods[nextIndex].start(!nextIndex));
     return {
-        nextString: moment().from(nextDeclaration),
+        nextString: moment().to(nextDeclaration),
         next: nextDeclaration,
         name: quarter.name
     };
@@ -47,5 +50,6 @@ export function getNextDeclaration() {
 
 export function isInDeclarationPeriod() {
     const {next} = getNextDeclaration();
-    return moment().diff(next, "M") <= 1
+    const monthsFromPeriod = moment().diff(next, "M", true);
+    return  monthsFromPeriod <= 1 && monthsFromPeriod > 0
 }

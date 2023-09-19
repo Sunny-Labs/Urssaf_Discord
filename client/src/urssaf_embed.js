@@ -23,7 +23,7 @@ export function getNextDeclarationEmbed(user) {
             },
             {
                 name: 'Date exacte',
-                value: nextDeclaration.next.format("De MMMM"),
+                value: nextDeclaration.next.format("DD MMMM"),
                 inline: true,
             },
         ],
