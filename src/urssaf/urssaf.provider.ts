@@ -18,8 +18,8 @@ const URSSAF_QUARTER_PLANNING = [
     ["0101", "0331"],
     ["0401", "0630"],
     ["0701", "0930"],
-    "1001", "1231"
-]
+    ["1001", "1231"]
+];
 
 class QuarterPeriodProvider {
 
@@ -32,10 +32,10 @@ class QuarterPeriodProvider {
     private getQuarterPeriods(onNextYear?: boolean) : QuarterPeriod[] {
         const currentYear: number = this.now.year();
         return quarterNames
-            .map((quarterName: string) =>{
+            .map((quarterName: string, index: number) =>{
                 return {
-                    start: currentYear + (onNextYear?1:0) + "0101",
-                    end: currentYear + "0331",
+                    start: currentYear + (onNextYear?1:0) + URSSAF_QUARTER_PLANNING[index][0],
+                    end: currentYear + URSSAF_QUARTER_PLANNING[index][1],
                     name: quarterName,
                 };
             });
@@ -48,20 +48,15 @@ class QuarterPeriodProvider {
             quarterPeriods.find((quarterPeriod) => {
                 const predictate = this.now.isAfter(moment(quarterPeriod.start))
                     && this.now.isBefore(moment(quarterPeriod.end));
-                console.log('%curssaf.provider.ts line:44 quarterPeriod.start', 'color: #007acc;', quarterPeriod.start);
-                console.log('%curssaf.provider.ts line:44 quarterPeriod.end', 'color: #007acc;', quarterPeriod.end);
-                console.log('%curssaf.provider.ts line:46 predictate', 'color: #007acc;', predictate);
                 index += predictate ? 0 : 1;
                 return predictate;
             });
-        console.log('%curssaf.provider.ts line:47 currentQuarter', 'color: #007acc;', currentQuarter);
         if(!currentQuarter) return null;
         return {quarter: currentQuarter, index};
     }
 
     public getNextDeclaration(): NextQuarterPeriod|null {
         const currentQuarterResult = this.getCurrentQuarter();
-        console.log('%curssaf.provider.ts line:53 currentQuarterResult', 'color: #007acc;', currentQuarterResult);
         if (!currentQuarterResult) return null;
         const {quarter, index} = currentQuarterResult;
         const nextIndex: number = (index + 1) % 4;
